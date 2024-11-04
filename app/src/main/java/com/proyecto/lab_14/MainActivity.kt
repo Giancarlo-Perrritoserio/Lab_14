@@ -12,11 +12,16 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -43,8 +48,8 @@ class MainActivity : ComponentActivity() {
             //VisibilityAnimationExample()
             //ColorChangeAnimationExample()
             //SizeAndPositionAnimationExample()
-            AnimatedContentExample()
-
+            //AnimatedContentExample()
+            CombinedAnimationsScreen()
 
         }
     }
@@ -186,6 +191,77 @@ fun AnimatedContentExample() {
         }
         Button(onClick = { currentState = AppState.ERROR }, modifier = Modifier.padding(top = 16.dp)) {
             Text(text = "Mostrar Error")
+        }
+    }
+}
+
+
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun CombinedAnimationsScreen() {
+    var isExpanded by remember { mutableStateOf(false) }
+    var isVisible by remember { mutableStateOf(true) }
+    var isDarkMode by remember { mutableStateOf(false) }
+
+    // Animación de color y tamaño
+    val boxColor by animateColorAsState(
+        targetValue = if (isExpanded) Color.Blue else Color.Green,
+        animationSpec = tween(durationMillis = 1000)
+    )
+
+    val boxSize by animateDpAsState(
+        targetValue = if (isExpanded) 200.dp else 100.dp,
+        animationSpec = tween(durationMillis = 500)
+    )
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(if (isDarkMode) Color.Black else Color.White)
+            .padding(16.dp)
+    ) {
+        // Cuadro animado con cambio de tamaño y color
+        Box(
+            modifier = Modifier
+                .size(boxSize)
+                .background(boxColor)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón para cambiar tamaño y color
+        Button(onClick = { isExpanded = !isExpanded }) {
+            Text("Cambiar Tamaño y Color")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón que se desplaza y desaparece con AnimatedVisibility
+        AnimatedVisibility(
+            visible = isVisible,
+            enter = fadeIn(animationSpec = tween(500)) + slideInVertically(),
+            exit = fadeOut(animationSpec = tween(500)) + slideOutVertically()
+        ) {
+            Button(onClick = { isVisible = false }) {
+                Text("Desplazar y Ocultar")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón para alternar visibilidad del botón desplazable
+        Button(onClick = { isVisible = !isVisible }) {
+            Text("Alternar Visibilidad")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón para alternar entre modo claro y oscuro
+        Button(onClick = { isDarkMode = !isDarkMode }) {
+            Text("Alternar Modo Claro/Oscuro")
         }
     }
 }
