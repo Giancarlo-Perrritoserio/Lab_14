@@ -5,6 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -31,7 +33,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            VisibilityAnimationExample()
+            //VisibilityAnimationExample()
+            ColorChangeAnimationExample()
+
         }
     }
 }
@@ -59,6 +63,41 @@ fun VisibilityAnimationExample() {
                     .background(Color.Blue)
                     .padding(top = 16.dp)
             )
+        }
+    }
+}
+
+
+@Composable
+fun ColorChangeAnimationExample() {
+    // Variable de estado para controlar el color actual
+    var isBlue by remember { mutableStateOf(true) }
+
+    // Animación de cambio de color con animateColorAsState
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isBlue) Color.Blue else Color.Green,
+        animationSpec = tween(durationMillis = 1000) // Puedes experimentar con spring() o ajustar los parámetros
+    )
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // Cuadro con color de fondo animado
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f)
+                .background(backgroundColor)
+        )
+
+        // Botón que alterna el color de fondo al hacer clic
+        Button(
+            onClick = { isBlue = !isBlue },
+            modifier = Modifier.padding(top = 16.dp)
+        ) {
+            Text(text = "Cambiar color")
         }
     }
 }
