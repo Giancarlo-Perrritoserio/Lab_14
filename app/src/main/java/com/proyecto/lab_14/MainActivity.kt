@@ -4,12 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,7 +42,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             //VisibilityAnimationExample()
             //ColorChangeAnimationExample()
-            SizeAndPositionAnimationExample()
+            //SizeAndPositionAnimationExample()
+            AnimatedContentExample()
+
 
         }
     }
@@ -139,6 +145,47 @@ fun SizeAndPositionAnimationExample() {
             modifier = Modifier.padding(top = 16.dp)
         ) {
             Text(text = if (isExpanded) "Reducir y mover" else "Expandir y mover")
+        }
+    }
+}
+
+// Definir la clase enum fuera del Composable
+enum class AppState { LOADING, CONTENT, ERROR }
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun AnimatedContentExample() {
+    // Variable de estado para controlar el estado actual
+    var currentState by remember { mutableStateOf(AppState.LOADING) }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Componente AnimatedContent para transiciones entre estados
+        AnimatedContent(
+            targetState = currentState,
+            transitionSpec = {
+                fadeIn(animationSpec = androidx.compose.animation.core.tween(500)) with
+                        fadeOut(animationSpec = androidx.compose.animation.core.tween(500))
+            }
+        ) { state ->
+            when (state) {
+                AppState.LOADING -> Text(text = "Cargando...")
+                AppState.CONTENT -> Text(text = "Contenido cargado con éxito.")
+                AppState.ERROR -> Text(text = "Error al cargar el contenido.")
+            }
+        }
+
+        // Botones para cambiar el estado actual
+        Button(onClick = { currentState = AppState.LOADING }, modifier = Modifier.padding(top = 16.dp)) {
+            Text(text = "Mostrar Cargando")
+        }
+        Button(onClick = { currentState = AppState.CONTENT }, modifier = Modifier.padding(top = 16.dp)) {
+            Text(text = "Mostrar Contenido")
+        }
+        Button(onClick = { currentState = AppState.ERROR }, modifier = Modifier.padding(top = 16.dp)) {
+            Text(text = "Mostrar Error")
         }
     }
 }
